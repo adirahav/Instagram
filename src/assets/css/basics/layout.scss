@@ -1,0 +1,19 @@
+.main-layout {
+    
+    @include scrollbar;
+    
+    @include mobile-layout {
+        @include base-layout('mobile'); 
+        @include layout-grid-template-columns('mobile');
+    }
+
+	@include tablet-layout {
+        @include base-layout('tablet'); 
+        @include layout-grid-template-columns('tablet');
+    }
+
+    @include desktop-layout {
+        @include base-layout('desktop'); 
+        @include layout-grid-template-columns('desktop');
+    }
+}

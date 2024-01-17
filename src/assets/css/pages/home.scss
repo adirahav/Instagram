@@ -1,0 +1,121 @@
+.home {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: minmax($layout-padding, 2fr) 8fr 6fr minmax($layout-padding, 2fr);
+
+    & > .center {
+        grid-column: 2;
+        
+        & > .followings {    
+            display: grid;
+        }
+
+        & > .stories {
+            grid-column: 2;
+            display: grid;
+            grid-template-columns: 1fr 6fr 1fr;
+        }
+    }
+
+    & > .side {
+        grid-column: 3;
+        margin-top: 26px;
+        
+        & > .profile {
+            display: grid;
+            grid-template-columns: 1fr 4fr 1fr;
+    
+            & > div {
+                grid-column: 2;
+                display: flex;
+                justify-content: space-between;
+                height: fit-content;
+                align-items: center;
+    
+                & > span {
+                    font-size: rem(12px);
+                    font-weight: 600;
+                    color: var(--text-action);
+    
+                    &:hover {
+                        color: var(--text-action-hover);
+                        cursor: default;
+                    }
+                }
+            }
+        }
+    
+        & > .suggestion {
+            display: grid;
+            grid-template-columns: 1fr 4fr 1fr;
+            margin-top: 14px;
+
+            & > div:first-child {
+
+                grid-column: 2;
+                display: flex;
+                justify-content: space-between;
+                height: fit-content;
+                align-items: center;
+
+                h2 {
+                    @include conditional-text("small-bold-light");
+                    
+                }
+
+                span {
+                    font-size: rem(12px);
+                    font-weight: 600;
+                    color: var(--text-action-dark);
+
+                    &:hover {
+                        opacity: 0.5;
+                    }
+                }   
+                
+            }
+
+            & > .suggested-users {
+                grid-column: 2
+            }
+            
+
+            &:first-child > span {
+                color: var(--text-action-dark);
+                
+                &:hover {
+                    opacity: 0.5;
+                }
+            }
+
+        }
+    }
+
+    @include mobile-layout {
+        grid-template-columns: 1fr;
+        
+        & > .center {
+            grid-column: 1;
+
+            & > .stories {
+                border-top: 1px solid var(--story-border);
+            }
+
+            & > .suggestion {
+                display: grid;
+                grid-template-columns: $layout-padding 1fr $layout-padding;
+                background-color: var(--mobile-suggestion-background);
+                
+                h2 {
+                    @include conditional-text("small-bold");
+                    grid-column: 2;
+                }
+            }
+        }
+
+        & > .side {
+            display: none;
+        }
+    }
+}
+

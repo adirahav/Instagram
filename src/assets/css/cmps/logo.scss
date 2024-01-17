@@ -1,0 +1,21 @@
+.logo {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    margin-left: 13px;
+    margin: 30px 13px 31px;
+    
+    img {
+        width: $logo-width;
+        height: $logo-height;
+    }
+
+    @include mobile-layout {
+        grid-column: 1;
+        margin: 15px 0 0px;
+
+        svg {
+            margin-right: 10px;
+        }
+    }
+}

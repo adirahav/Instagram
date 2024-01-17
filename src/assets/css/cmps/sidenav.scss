@@ -1,0 +1,9 @@
+.sidenav {
+    position: absolute;
+    width: $sidenav-width;
+    border-right: 1px solid var(--sidenav-border);
+    grid-column: 1;
+    padding: 10px;
+}
+
+
