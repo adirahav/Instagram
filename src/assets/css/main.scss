@@ -12,15 +12,19 @@
 
 /* Pages */
 @import "./pages/home.scss";
+@import "./pages/profile.scss";
 
 /* Components */
+@import "./cmps/signin.scss";
 @import "./cmps/logo.scss";
 @import "./cmps/menu.scss";
 @import "./cmps/sidenav.scss";
 @import "./cmps/footer.scss";
 @import "./cmps/overlay.scss";
 @import "./cmps/alert.scss";
+@import "./cmps/dynamicModal.scss";
 @import "./cmps/avatar.scss";
-@import "./cmps/story.scss";
+@import "./cmps/postPreview.scss";
 @import "./cmps/followingUsers.scss";
 @import "./cmps/suggestedUsers.scss";
+@import "./cmps/media.scss";

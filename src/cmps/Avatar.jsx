@@ -1,25 +1,38 @@
-import { IconSizes, ProfileIcon } from "../assets/icons";
+import { NavLink } from "react-router-dom"
+import missingAvatar from '../assets/images/missing-avatar.jpg'
 
-export function Avatar({size = "large", textPosition = "right", hasBorder = true, label, user}) {
 
-    // size:         large | medium | small | tiny
+export function Avatar({size = "big", textPosition = "right", hasBorder = true, blackBorder = false, bigLabel = false, label, user, onPress = null}) {
+
+    // size:         giant | huge | bigger | big | medium | small | tiny
     // textPosition: right | bottom | none
 
-    const articleClass = `avatar size-${size} text-pos-${textPosition} ${hasBorder ? "border" : ""}`;
-    
+    const articleClass = `avatar size-${size} text-pos-${textPosition} ${hasBorder ? "border" : ""} ${blackBorder ? "black-border" : ""}`
+    const labelClass = `${bigLabel ? "big-label" : ""}`
+    const imgURL = user?.imgURL === "" ? missingAvatar : user.imgURL
+
+    const handleOnPress = (event) => {
+        if (onPress != null) {
+            event.preventDefault()
+            onPress()
+        }
+    }
+
     return (<>
-        <article className={articleClass}>
-            <div>
+        <NavLink  className={articleClass} to='/adirahav' onClick={handleOnPress}>
+            <article>
                 <div>
-                    {user?.imgURL && <img src={user.imgURL} />}
-                    {user?.imgURL === "" && <ProfileIcon sx={ IconSizes.Large } />}
+                    <div>
+                        <img src={imgURL} />
+                    </div>
                 </div>
-            </div>
-            <div>
-                <span>{user.username}</span>
-                {label && <span>{label}</span>}
-            </div>
-        </article>
+                <div>
+                    <span>{user.username}</span>
+                    {label && <span className={labelClass}>{label}</span>}
+                </div>
+            </article>
+        </NavLink>
+
         
-    </>);
+    </>)
 }

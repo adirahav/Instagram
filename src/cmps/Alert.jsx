@@ -1,115 +1,126 @@
-import { useEffect, useState } from "react";
-import { eventBusService } from "../services/event-bus.service";
-import { Button } from "@mui/material";
-import { IconSizes, SuccessIcon, ErrorIcon, WarningIcon, MessageIcon, CloseIcon} from '../assets/icons';
+import { useEffect, useState, useRef } from "react"
+import { eventBusService } from "../services/event-bus.service"
 
-window.showSuccessAlert = showSuccessAlert;
-window.showWarningAlert = showWarningAlert;
-window.showErrorAlert = showErrorAlert;
-window.showMessageAlert = showMessageAlert;
+window.showSuccessAlert = showSuccessAlert
+window.showWarningAlert = showWarningAlert
+window.showErrorAlert = showErrorAlert
+window.showMessageAlert = showMessageAlert
 
 export function Alert() {
-
-    const [displayAlert, setDisplayAlert] = useState(false);    
-    const [type, setType] = useState('message');    // error | warning | success | message
-    const [message, setMessage] = useState('');
-    const [positiveButton, setPositiveButton] = useState({show: true, text: "", onPress: null, closeAfterPress: true});
-    const [negativeButton, setNegativeButton] = useState({show: true, text: "", onPress: null, closeAfterPress: true});
-    const [closeButton, setCloseButton] = useState({show: true, autoClose: true, autoCloseSeconds: 3});
     
+    const [displayAlert, setDisplayAlert] = useState(false)    
+    const [type, setType] = useState('message')    // error | warning | success | message
+    const [title, setTitle] = useState('')
+    const [message, setMessage] = useState('')
+    const [okButton, setOKButton] = useState({show: true, text: "", onPress: null, closeAfterPress: true})
+    const [cancelButton, setCancelButton] = useState({show: true, text: "", onPress: null, closeAfterPress: true})
+    const [closeButton, setCloseButton] = useState({show: false, autoClose: false, autoCloseSeconds: 3})
+    const modalRef = useRef()
+
     useEffect(() => {
         const unsubscribe = eventBusService.on('show-alert', (data) => {
-            setType(data.type ?? type);
-            setMessage(data.message);
-            setPositiveButton({ ...positiveButton, ...data.positiveButton });
-            setNegativeButton({ ...negativeButton, ...data.negativeButton });
-            
+            setType(data.type ?? type)
+            setTitle(data.title)
+            setMessage(data.message)
+            setOKButton({ ...okButton, ...data.okButton })
+            setCancelButton({ ...cancelButton, ...data.cancelButton })
+            setDisplayAlert(true)
+
             setCloseButton((prevCloseButton) => {
-                const _closeButton = { ...closeButton, ...data.closeButton };
+                const _closeButton = { ...closeButton, ...data.closeButton }
                 
                 if (_closeButton && _closeButton.autoClose) {
                     setTimeout(() => {
-                        onClose();
-                    }, _closeButton.autoCloseSeconds * 1000);
+                        onClose()
+                    }, _closeButton.autoCloseSeconds * 1000)
                 }
     
-                return _closeButton; 
-            }); 
-
-            setDisplayAlert(true);
+                return _closeButton
+            }) 
         })
 
-        return unsubscribe;
-    }, [type, message, positiveButton, negativeButton, closeButton]);
+        return unsubscribe
+    }, [type, title, message, okButton, cancelButton, closeButton])
+
+    useEffect(() => {
+        if (type && title && message && okButton && cancelButton || closeButton) {
+            setTimeout(() => {
+                document.addEventListener('click', handleClickOutside)
+            }, 0)
+        }
+
+        return () => {
+            document.removeEventListener('click', handleClickOutside)
+        }
+
+    }, [type, title, message, okButton, cancelButton, closeButton])
+
 
     function onClose() {
-        setType(null);
-        setMessage(null);
-        setPositiveButton(null);
-        setNegativeButton(null);
-        setCloseButton(null);
-        setDisplayAlert(false);
+        setType(null)
+        setTitle(null)
+        setMessage(null)
+        setOKButton(null)
+        setCancelButton(null)
+        setCloseButton(null)
+        setDisplayAlert(false)
     }
 
     function handleButton(button) {
         if (button === null) {
-            return;
+            return
         }
 
         if (button.onPress !== null) {
-            button.onPress();
+            button.onPress()
         }
         
         if (button.closeAfterPress) {
-            onClose();
+            onClose()
         }
     }
 
-    if (!displayAlert) return <></>;
-
-    function getHeader() {  
-        switch (type) {
-            case "error":     return <><div><ErrorIcon sx={ IconSizes.Medium } /><h2>Error</h2></div></>;
-            case "warning":   return <><div><WarningIcon sx={ IconSizes.Medium } /><h2>Warning</h2></div></>;
-            case "success":   return <><div><SuccessIcon sx={ IconSizes.Medium } /><h2>Success</h2></div></>;
-            case "message":   return <><div><MessageIcon sx={ IconSizes.Medium } /><h2>Message</h2></div></>;
-            default: <></>
+    function handleClickOutside(ev) {
+        if (modalRef.current && !modalRef.current.contains(ev.target)) {
+            onClose()
         }
     }
+
+    if (!displayAlert) return <></>
 
     return (
-        <div className={"alert " + type}>
+        <div className={"alert " + type} ref={modalRef}>
             <header>
-                {getHeader()}
+                <h2>{title}</h2>
                 {closeButton.show && <CloseIcon sx={ IconSizes.Small } onClick={onClose} />}
             </header>
             <section className="message">
                 <p>{message.replace(/<br\s*\/?>/g, '\n')}</p>
             </section>
             <section className="buttons">
-                {positiveButton.show && <Button variant="contained" className='positive' onClick={() => handleButton(positiveButton)}>{positiveButton.text}</Button>}
-                {negativeButton.show && <Button variant="contained" className='negative' onClick={() => handleButton(negativeButton)}>{negativeButton.text}</Button>}
+                {okButton.show && <button className="ok" onClick={() => handleButton(okButton)}>{okButton.text}</button>}
+                {cancelButton.show && <button className="cancel" onClick={() => handleButton(cancelButton)}>{cancelButton.text}</button>}
             </section>
         </div>
-    );
+    )
 }
 
 function showAlert(data) {
-    eventBusService.emit('show-alert', data);
+    eventBusService.emit('show-alert', data)
 }
 
 export function showErrorAlert(data) {
-    showAlert({ ...data, type: 'error' });
+    showAlert({ ...data, type: 'error' })
 }
 
 export function showWarningAlert(data) {
-    showAlert({ ...data, type: 'warning' });
+    showAlert({ ...data, type: 'warning' })
 }
 
 export function showSuccessAlert(data) {
-    showAlert({ ...data, type: 'success' });
+    showAlert({ ...data, type: 'success' })
 }
 
 export function showMessageAlert(data) {
-    showAlert({ ...data, type: 'message' });
+    showAlert({ ...data, type: 'message' })
 }

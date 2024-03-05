@@ -2,14 +2,14 @@
     list-style: none;
     display: flex;
     justify-content: flex-start;
-    max-width: 630px;
     width: 100%;
     overflow-x: auto;
     padding: 0;
+    margin-top: 26px;
     margin-bottom: 20px;
 
     li {
-        margin: 0 8px;
+        margin: 0 10px 0 7px;
     }
     
     @include mobile-layout {

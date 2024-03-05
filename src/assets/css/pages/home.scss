@@ -1,7 +1,7 @@
 .home {
     grid-column: 2;
     display: grid;
-    grid-template-columns: minmax($layout-padding, 2fr) 8fr 6fr minmax($layout-padding, 2fr);
+    grid-template-columns: minmax($layout-padding, 1fr) 5fr 3fr minmax($layout-padding, 1fr);
 
     & > .center {
         grid-column: 2;
@@ -10,7 +10,7 @@
             display: grid;
         }
 
-        & > .stories {
+        & > .posts {
             grid-column: 2;
             display: grid;
             grid-template-columns: 1fr 6fr 1fr;
@@ -19,27 +19,26 @@
 
     & > .side {
         grid-column: 3;
-        margin-top: 26px;
+        margin-top: 36px;
         
-        & > .profile {
+        & > .user-profile {
             display: grid;
-            grid-template-columns: 1fr 4fr 1fr;
-    
+            grid-template-columns: 1fr 5fr;
+            margin-right: 19px;
+            
             & > div {
                 grid-column: 2;
                 display: flex;
                 justify-content: space-between;
                 height: fit-content;
                 align-items: center;
+                padding: 0 9px;
     
-                & > span {
-                    font-size: rem(12px);
-                    font-weight: 600;
-                    color: var(--text-action);
+                & > button {
+                    @include button("link-tiny");
     
                     &:hover {
-                        color: var(--text-action-hover);
-                        cursor: default;
+                        @include button("link-tiny-hover");
                     }
                 }
             }
@@ -47,9 +46,10 @@
     
         & > .suggestion {
             display: grid;
-            grid-template-columns: 1fr 4fr 1fr;
-            margin-top: 14px;
-
+            grid-template-columns: 1fr 5fr;
+            margin-top: 15px;
+            margin-right: 19px;
+            
             & > div:first-child {
 
                 grid-column: 2;
@@ -57,26 +57,25 @@
                 justify-content: space-between;
                 height: fit-content;
                 align-items: center;
+                padding: 0 9px;
 
                 h2 {
-                    @include conditional-text("small-bold-light");
+                    @include text("small-bold-light");
                     
                 }
 
-                span {
-                    font-size: rem(12px);
-                    font-weight: 600;
-                    color: var(--text-action-dark);
-
+                button {
+                    @include button("action");
+    
                     &:hover {
-                        opacity: 0.5;
+                        @include button("action-hover");
                     }
-                }   
-                
+                }
             }
 
             & > .suggested-users {
-                grid-column: 2
+                grid-column: 2;
+                padding: 0 8px 0 13px;
             }
             
 
@@ -97,8 +96,8 @@
         & > .center {
             grid-column: 1;
 
-            & > .stories {
-                border-top: 1px solid var(--story-border);
+            & > .posts {
+                border-top: 1px solid var(--post-border);
             }
 
             & > .suggestion {
@@ -107,7 +106,7 @@
                 background-color: var(--mobile-suggestion-background);
                 
                 h2 {
-                    @include conditional-text("small-bold");
+                    @include text("small-bold");
                     grid-column: 2;
                 }
             }
@@ -119,3 +118,66 @@
     }
 }
 
+.home-login {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 12fr 11fr auto;
+    
+    .promo {
+        grid-column: 1;
+        display: grid;
+        background-image: url(/src/assets/images/promo-bg.png);
+        background-repeat: no-repeat;
+        background-position: right -10px top 32px;
+        justify-content: end;
+        
+        div {
+            width: 250px;
+            height: 541px;
+            aspect-ratio: auto 250 / 541;
+            margin: 58px 48px 0 0;
+            display: flex;
+            position: relative;
+
+            img {
+                position: absolute;
+    
+                &.show {
+                    /*display: block;*/
+                    -webkit-animation: fadein 2s forwards;
+                    animation: fadein 2s forwards;   
+    
+                }
+    
+                &.hide {
+                    -webkit-animation: fadeout 2s forwards;
+                    animation: fadeout 2s forwards;   
+                }
+            }
+
+        }
+    }
+
+    .login {
+        grid-column: 2;
+        display: grid;
+    }
+
+    @include mobile-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        
+        .promo {
+            display: none;
+        }
+
+        .signin {
+            margin: 0 auto;    
+        }
+
+        .login {
+            grid-column: 1;
+            display: grid;
+        }
+    }
+}

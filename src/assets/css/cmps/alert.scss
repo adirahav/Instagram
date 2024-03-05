@@ -5,61 +5,32 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
-    min-height: 290px;
     margin: 20px auto; 
-    -webkit-box-shadow: 0px 8px 10px 1px rgba(0,0,0,.14), 0px 3px 14px 2px rgba(0,0,0,.12), 0px 5px 5px -3px rgba(0,0,0,.2);
-    box-shadow: 0px 8px 10px 1px rgba(0,0,0,.14), 0px 3px 14px 2px rgba(0,0,0,.12), 0px 5px 5px -3px rgba(0,0,0,.2);
+    -webkit-box-shadow: 0 0 0 100vmax var(--overlay-background);
+    box-shadow: 0 0 0 100vmax var(--overlay-background);
     border: 1px solid #ccc;
-    border-radius: 16px;
-    z-index: 5;
+    border-radius: 12px;
+    z-index: 10;
     background-color: var(--alert-background);
+    overflow: hidden;
 
     header {
         background-color: var(--alert-header-background);
-        border-radius: 16px 16px 0 0;
-        height: 48px;
-        display: flex;
-        justify-content: space-between;
+        border-radius: 12px 12px 0 0;
         align-items: center;
-        padding: 0 10px;
-        box-sizing: border-box;
+        text-align: center;
 
-        div {
-            display: flex;
-
-            h2 {
-                font-size: 14px;
-                padding: 3px 0 0 10px;
-            }
+        h2 {
+            @include text('big');
+            margin-top: 20px;
         }
-        
-        svg:not(:first-child):hover {
-            background-color: var(--alert-icon-background-hover);
-        }
-    }
-    
-    &.message header div {
-        color: var(--text-message);
-    }
-    
-    &.success header div {
-        color: var(--text-success);
-    }
-    
-    &.warning header div {
-        color: var(--text-warning);
-    }
-    
-    &.error header div {
-        color: var(--text-error);
     }
     
     .message {
         @include scrollbar;
-        
-        display: inline-grid;
+        @include text('small-light');
+        text-align: center;
         width: 100%;
-        height: 180px;
         overflow: auto;
 
         &:focus-visible {
@@ -67,44 +38,35 @@
         }
         
         p {
-            border: 0;
-            margin: 10px 20px;
-            white-space: pre-line;
+            padding: 0 0 30px 0;
         }
     }
     
     .buttons {
-        border: 0;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 20px;
-
         button {
-            width: 104px;
-            height: 36px;
-            border-radius: 18px;
-            border: 0;
-            font-weight: bold;
-            margin: 5px 5px 0;
+            @include button('modal');
 
-            
-            &.positive {
-                @include conditional-button('default');
-
-                &:hover {
-                    @include conditional-button('default-hover');
-                }
-            }
-            
-            &.negative {
-                @include conditional-button('negative');
-
-                &:hover {
-                    @include conditional-button('negative-hover');
-                }
+            &.cancel {
+                @include button('modal-cancel');
             }
         }
+    }
+
+    &.error {
+        header h2 {
+            @include text('big-bold');
+        }
+
+        .buttons button.ok {
+            @include button('modal-error');    
+        }
+    }
+
+    &.warning .buttons button.ok {
+        @include button('modal-warning');    
+    }
+
+    @include mobile-layout {
+        width: calc(100% - 40px);
     }
 }

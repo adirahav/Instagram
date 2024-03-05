@@ -13,10 +13,6 @@ footer {
         @include footer-grid-template-columns($break-mobile);
     }
 
-	@include tablet-layout {
-        @include footer-grid-template-columns($break-tablet);
-    }
-
     @include desktop-layout {
         @include footer-grid-template-columns($break-desktop);
     } 

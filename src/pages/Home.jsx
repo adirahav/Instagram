@@ -1,73 +1,208 @@
-import React, { useState } from 'react';
-import { useEffect } from "react";
-import { utilService } from "../services/util.service";
-import { Menu } from '../cmps/Menu';
-import { Avatar } from '../cmps/Avatar';
-import { Story } from '../cmps/Story';
-import { Logo } from '../cmps/Logo';
-import { FollowingsUsers } from '../cmps/FollowingsUsers';
-import { SuggestedUsers } from '../cmps/SuggestedUsers';
-
-const { PLATFORM } = utilService;
+import React, { useState } from 'react'
+import { useEffect, useRef } from "react"
+import { postService } from "../services/post.service"
+import { Menu } from '../cmps/Menu'
+import { Avatar } from '../cmps/Avatar'
+import { Logo } from '../cmps/Logo'
+import { FollowingsUsers } from '../cmps/FollowingsUsers'
+import { SuggestedUsers } from '../cmps/SuggestedUsers'
+import { PostsList } from '../cmps/PostsList'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { Login } from '../cmps/Login'
+import { userService } from '../services/user.service'
+import { useSelector } from 'react-redux'
 
 export function Home() {
-    const [showComponent, setShowComponents] = useState(null);
+    const [promoCounter, setPromoCounter] = useState(1)
+    const [promoClasses, setPromoClasses] = useState(1)
+    const [posts, setPosts] = useState([])
+    const [pageNumber, setPageNumber] = useState(1)
+    const [isLoading, setIsLoading] = useState(false)
+    const [reload, setReload] = useState(false)
+    const loadingRef = useRef(null)
+    const loggedinUser = useSelector(storeState => storeState.userModule.loggedinUser)
+    const navigate = useNavigate()
     
-    useEffect(() => {
-        setShowComponents({
-            Header: utilService.getPlatform() === PLATFORM.MOBILE,
-            SideNav: utilService.getPlatform() === PLATFORM.DESKTOP,
-            Footer: utilService.getPlatform() === PLATFORM.MOBILE,
-            DesktopSuggestion: utilService.getPlatform() === PLATFORM.DESKTOP,
-            MobileSuggestion: utilService.getPlatform() === PLATFORM.MOBILE,
-        });
-    },[]);
+    const PAGING_SIZE = 2
+    const PROMO_IMAGES_SIZE = 4
+    
+    const fetchPosts = async () => {
+        if (isLoading) return
+        setIsLoading(true)
 
-    const mainClass = `home container ${utilService.getPlatform() === PLATFORM.MOBILE ? "full" : ""}`;
+        try {
+            /*const currPosts = await postService.query()
+            setPosts((prevPosts) => { return currPosts })*/
+
+            const fetchedPosts = await postService.query(pageNumber, PAGING_SIZE)
+            
+            setPosts((prevPosts) => {
+                if (pageNumber === 1) { 
+
+                    /*setTimeout(() => {
+                        ReactDOM.findDOMNode(this).scrollIntoView()
+                    }, 300)*/
+                    
+                    
+                    return [...fetchedPosts]
+                } else {
+                    return [...prevPosts, ...fetchedPosts]
+                }
+            })
+
+            setPageNumber((prevPageNumber) => {
+                return fetchedPosts.length === 0 ? 1 : prevPageNumber + 1
+            })
+
+        } catch (error) {
+            console.error('Error fetching data:', error)
+            showErrorAlert({
+                title: "Error",
+                message: "Sorry, there was a problem with your request.",
+                closeButton: { show: false }, 
+                okButton: { show: true, text: "OK", onPress: null, closeAfterPress: true }, 
+                cancelButton: { show: false }, 
+            })
+        } finally {
+            setIsLoading(false)
+        }
+
+    }
+
+    useEffect(() => {
+        //  console.log("Updated pageNumber:", pageNumber)
+        }, [pageNumber])
+        
+    useEffect(() => {
+        if (loggedinUser) {
+            const observer = new IntersectionObserver((entries) => {
+                const entry = entries[0]
+                //console.log("isIntersecting = " + entry.isIntersecting + " , reload = " + reload)
+                if (entry.isIntersecting) {
+                    fetchPosts()
+                }
+            }, { root: null, margin: '30px' })
+    
+            if (observer) {
+                observer.observe(loadingRef.current)
+            }
+    
+            return () => {
+                if (observer) {
+                    observer.disconnect()
+                }
+            }
+        }  
+    }, [fetchPosts])
+
+    useEffect(() => {
+        if (reload) {
+            fetchPosts()
+            setReload(false)
+        }
+        
+    }, [reload])
+
+    // like / unlike
+    function onLike(post) {
+        postService.liked(post)
+    }
+
+    // add comment 
+    function onAddComment(post, comment) {
+        postService.addComment(post, comment)
+    }
+
+    // create post
+    function onPostCreated() {
+        setPageNumber(1)
+        setReload(true)
+    }
+
+    // post details
+    async function onPostDetailsPress(pressedPost) {
+        navigate(`/p/${pressedPost._id}`)  
+    }
+
+    // login
+    useEffect(() => {
+       /* debugger
+        const a = process.env.NODE_ENV
+        const b = process
+        const c = process.env
+        const d = process.env.NODE_ENV2*/
+        const intervalId = setInterval(() => {
+            setPromoCounter((prevPromoCounter) => prevPromoCounter == PROMO_IMAGES_SIZE ? 1 : prevPromoCounter + 1)
+        }, 4000)
+    
+        return () => clearInterval(intervalId)
+    }, [])
+
+    useEffect(() => {
+        setPromoClasses(
+            (promoClasses) => {
+                return Array.from({ length: PROMO_IMAGES_SIZE }, (_, index) =>
+                    promoCounter === index + 1 ? "show" : "hide"
+                )
+            }
+        )
+    }, [promoCounter])
+
+    if (!loggedinUser) return (
+        <main className='home-login'> 
+            <section className='promo'>
+                <div>
+                    <img src="/src/assets/images/promo-1.png" className={promoClasses[0]} />
+                    <img src="/src/assets/images/promo-2.png" className={promoClasses[1]} />
+                    <img src="/src/assets/images/promo-3.png" className={promoClasses[2]} />
+                    <img src="/src/assets/images/promo-4.png" className={promoClasses[3]} />
+                </div>
+            </section>
+            <Login />
+        </main>
+    )
 
     return (<>
-        {showComponent?.Header && <header>
+        <header className="mobile">
             <Logo />
-            <Menu position="header" />
-        </header>}
-        {showComponent?.SideNav && <aside className="sidenav">
+            <Menu position="header" createPostCallback={onPostCreated} />
+        </header>
+        
+        <aside className="sidenav desktop">
             <Logo />    
-            <Menu position="sidenav" />
-        </aside>}
-        <main className={mainClass}>
+            <Menu position="sidenav" createPostCallback={onPostCreated} />
+        </aside>
+        <main className="home container mobile-full">
             <section className='center'>
                 <section className='followings'>
                     <FollowingsUsers />
                 </section>
-                {showComponent?.MobileSuggestion && <section className='suggestion'>
+                <section className='suggestion mobile'>
                     <h2>Suggested for you</h2>
                     <SuggestedUsers />
-                </section>}
-                <section className='stories'>
-                    <Story />
-                    <Story />
-                    <Story />
-                    <Story />
                 </section>
+                <PostsList posts={posts} onLike={onLike} onAddComment={onAddComment} onPostDetailsPress={onPostDetailsPress} />
+                <Outlet context={{ onAddComment: onAddComment }} />
+                <div id="loading" style={{ height: '1px', backgroundColor: 'transparent' }} ref={loadingRef}></div>
             </section>
             <section className='side'>
-                <section className='profile'>
+                <section className='user-profile'>
                     <div>
-                        <Avatar size="medium" textPosition="right" hasBorder={false} label="Adi Rahav" user={{username: "adi_rahav", imgURL: "https://scontent-mrs2-1.xx.fbcdn.net/v/t39.30808-1/340381469_688637223062877_9021681889243498193_n.jpg?stp=cp0_dst-jpg_p60x60&_nc_cat=103&ccb=1-7&_nc_sid=5740b7&_nc_ohc=PipWI0HY0d8AX9z-TbN&_nc_ht=scontent-mrs2-1.xx&oh=00_AfCupxmJ9ynBpNiFaym7E1O7J_XMNQjZaYpiYMxKkfuucQ&oe=65A9F430"}} />
-                        <span>Switch</span>
+                        <Avatar size="medium" textPosition="right" hasBorder={false} label="Adi Rahav" bigLabel={true} user={{username: "adi_rahav", imgURL: "src/assets/images/avatar-example.jpg"}} />
+                        <button>Switch</button>
                     </div>
                 </section>
-                {showComponent?.DesktopSuggestion && <section className='suggestion'>
+                <section className='suggestion desktop'>
                     <div>
                         <h2>Suggested for you</h2>
-                        <span>See All</span>
+                        <button>See All</button>
                     </div>
                     <SuggestedUsers />
-                </section>}
+                </section>
             </section>    
         </main>
-        {showComponent?.Footer && <footer className='full'>
-            <Menu position="footer" />
-        </footer>}
-    </>);
+        <footer className='mobile full'>
+            <Menu position="footer" createPostCallback={onPostCreated} />
+        </footer>
+    </>)
 }

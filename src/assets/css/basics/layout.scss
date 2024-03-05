@@ -7,13 +7,20 @@
         @include layout-grid-template-columns('mobile');
     }
 
-	@include tablet-layout {
-        @include base-layout('tablet'); 
-        @include layout-grid-template-columns('tablet');
-    }
-
     @include desktop-layout {
         @include base-layout('desktop'); 
         @include layout-grid-template-columns('desktop');
+    }
+
+    &.logout, &.logging {
+        @include desktop-layout {
+            @include layout-grid-template-columns('desktop-logout');
+        }
+    }
+
+    & > .signin {
+        margin: 0 auto;
+        justify-content: center;
+        display: grid;
     }
 }
